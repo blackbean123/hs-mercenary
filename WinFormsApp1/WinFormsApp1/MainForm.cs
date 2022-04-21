@@ -219,19 +219,45 @@ namespace WinFormsApp1
 				FileStream fs = new FileStream(path, FileMode.Open);
 				StreamReader sr = new StreamReader(fs, Encoding.Default);
 				string json = sr.ReadToEnd();
-				var cfg = JsonConvert.DeserializeObject<dynamic>(json);
-				if (cfg != null) 
+				//var cfg = JsonConvert.DeserializeObject<dynamic>(json);
+				if (string.IsNullOrEmpty(json)) 
 				{
-					teamListBox.Text = cfg.teamList;
-					abilityListBox.Text = cfg.abilityList;
-					firstTargetBox.Text = cfg.firstTarget;
-					whiteListBox.Text = cfg.whiteList;
-					blackListBox.Text = cfg.blackList;
-					battlePolicyCombo.SelectedItem = cfg.battlePolicy;
+					MessageBox.Show("文件内容为空");
+					return;
+				}
+				
+				string[] content = json.Split("\r\n");
+				Hashtable map = new System.Collections.Hashtable();
+				foreach (string item in content)
+				{
+					if (string.IsNullOrEmpty(item)) 
+					{
+						continue;
+					}
+					
+					string[] itemCfg = item.Replace("：", ":").Split(":");
+					if (itemCfg.Length < 2)
+					{
+						continue;
+					}
+					map.Add(itemCfg[0], itemCfg[1]);
+					
+				}
+
+				if (map.Count != 0) 
+				{
+					teamListBox.Text = map["teamList"] as string;
+					abilityListBox.Text = map["abilityList"] as string;
+					firstTargetBox.Text = map["firstTarget"] as string;
+					whiteListBox.Text = map["whiteList"] as string;
+					blackListBox.Text = map["blackLisy"] as string;
 				}
 				
 			}
-			catch { }
+			catch (Exception ex)
+			{
+				MessageBox.Show(ex.Message);
+			}
         }
     }
 }
